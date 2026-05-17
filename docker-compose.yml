@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: development
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_SERVICE_NAME: ${DB_SERVICE_NAME}
+      LOG_LEVEL: debug
+    depends_on:
+      - oracle
+    volumes:
+      - ./src:/app/src
+      - ./logs:/app/logs
+    networks:
+      - nestjs-network
+
+  oracle:
+    image: gvenzl/oracle-xe:latest
+    environment:
+      ORACLE_PASSWORD: oracle
+      ORACLE_CHARACTERSET: AL32UTF8
+    ports:
+      - "1521:1521"
+      - "5500:5500"
+    volumes:
+      - oracle_data:/opt/oracle/oradata
+      - ./init-db.sql:/container-entrypoint-initdb.d/01-init.sql
+    networks:
+      - nestjs-network
+    healthcheck:
+      test: ["CMD", "sqlplus", "-V"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  oracle_data:
+
+networks:
+  nestjs-network:
+    driver: bridge
