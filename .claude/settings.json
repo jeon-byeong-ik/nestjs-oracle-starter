@@ -1,0 +1,33 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "command": "bash -c 'file_path=$(jq -r \".tool_input.file_path // empty\"); if [[ \"$file_path\" =~ \\.ts$ ]]; then npx prettier --write \"$file_path\" 2>/dev/null; npx eslint --fix \"$file_path\" 2>/dev/null; fi'",
+        "description": "TypeScript 파일 저장 후 자동 포맷팅 (Prettier + ESLint)"
+      },
+      {
+        "matcher": "Edit",
+        "command": "bash -c 'file_path=$(jq -r \".tool_input.file_path // empty\"); if [[ \"$file_path\" =~ \\.ts$ ]]; then npx tsc --noEmit \"$file_path\" 2>/dev/null; fi'",
+        "description": "TypeScript 파일 수정 후 타입 체크"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "command": "bash -c 'file_path=$(jq -r \".tool_input.file_path // empty\"); if [[ \"$file_path\" =~ (^\\.env|\\.git/|package-lock\\.json$) ]]; then echo \"⚠️  보호된 파일입니다: $file_path\"; exit 2; fi; exit 0'",
+        "description": "중요 파일 수정 차단 (.env, package-lock.json, .git)"
+      },
+      {
+        "matcher": "Bash",
+        "command": "bash -c 'command=$(jq -r \".tool_input.command // empty\"); if [[ \"$command\" =~ (git\\ push\\ --force|rm\\ -rf|git\\ reset\\ --hard|sudo) ]]; then echo \"🚨 위험한 명령어입니다: $command\"; exit 2; fi; exit 0'",
+        "description": "위험한 명령어 차단 (git push --force, rm -rf, git reset --hard, sudo)"
+      },
+      {
+        "matcher": "Bash",
+        "command": "bash -c 'command=$(jq -r \".tool_input.command // empty\"); timestamp=$(date \"+%Y-%m-%d %H:%M:%S\"); echo \"[$timestamp] $command\" >> .claude/logs/bash-commands.log 2>/dev/null || true'",
+        "description": "모든 Bash 명령어 자동 로깅"
+      }
+    ]
+  }
+}
