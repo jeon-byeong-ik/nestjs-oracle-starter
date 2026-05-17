@@ -1,0 +1,40 @@
+name: add-api
+description: 새로운 NestJS API 엔드포인트 생성 (모듈, 컨트롤러, 서비스, 레포지토리, DTO)
+hidden: false
+args:
+  - name: apiName
+    description: "API 이름 (예: product, order, invoice)"
+    required: true
+    hint: product
+prompt: |
+  새로운 NestJS API 엔드포인트를 생성해줘.
+
+  API 이름: $1
+
+  다음을 생성해줘:
+  1. src/modules/$1/ 폴더 구조 생성
+  2. $1.module.ts - NestJS Module (DatabaseModule import)
+  3. $1.controller.ts - REST API 컨트롤러 (GET, POST, DELETE 기본 엔드포인트)
+  4. $1.service.ts - 비즈니스 로직 서비스 (Winston Logger 포함)
+  5. $1.repository.ts - 데이터베이스 접근 계층 (DatabaseService 사용)
+  6. dto/create-$1.dto.ts - Create DTO (class-validator)
+  7. dto/$1.dto.ts - Response DTO
+
+  코드 작성 시 준수사항:
+  - TypeScript strict mode 준수 (any 금지)
+  - 한국어 주석은 비즈니스 로직/중요 부분만
+  - Winston Logger 사용 (로깅)
+  - Oracle/Tibero 연동 (node-oracledb)
+  - Prepared Statement (Bind Variable) 필수 사용
+  - 완전한 에러 처리
+  - DTO 검증 (class-validator)
+  - Pagination 지원 (offset, limit)
+  - HTTP 메서드: GET (조회), POST (생성), DELETE (삭제)
+  - 응답 상태 코드 적절히 설정
+
+  참고:
+  - src/modules/user/ 폴더 구조를 참고해줘
+  - DatabaseService.getConnection()으로 연결 획득
+  - 모든 쿼리는 Bind Variable 사용 (:param)
+  - 예외는 NestJS 내장 예외 사용 (NotFoundException, ConflictException 등)
+  - 리포지토리에서는 로깅과 연결 종료 처리
