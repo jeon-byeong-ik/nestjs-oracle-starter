@@ -1,0 +1,49 @@
+name: db-migration
+description: 데이터베이스 테이블 생성 SQL 스크립트 자동 생성
+hidden: false
+args:
+  - name: tableName
+    description: "테이블 이름 (예: products, orders, invoices)"
+    required: true
+    hint: products
+  - name: columns
+    description: "컬럼 정의 (예: name:string:50, price:number, email:string:100:unique)"
+    required: true
+    hint: "name:string:100, price:number, description:text"
+prompt: |
+  데이터베이스 테이블 생성 SQL 스크립트를 생성해줘.
+
+  테이블 이름: $1
+  컬럼: $2
+
+  다음을 포함한 SQL 스크립트를 생성해줘:
+
+  1. CREATE TABLE 문
+     - ID NUMBER PRIMARY KEY (자동 증가)
+     - 지정된 컬럼들
+     - CREATED_AT, UPDATED_AT (자동)
+     - 모든 필드는 적절한 타입과 제약조건
+
+  2. 시퀀스 생성
+     - {tableName}_SEQ 시퀀스 생성
+
+  3. 트리거 생성
+     - INSERT 시 ID 자동 증가 트리거
+     - CREATED_AT, UPDATED_AT 자동 설정 트리거
+
+  4. 인덱스 생성
+     - CREATED_AT DESC로 정렬 인덱스
+     - unique 컬럼 인덱스
+     - 자주 조회하는 컬럼 인덱스
+
+  5. 예제 데이터 (1-2개)
+
+  생성된 SQL을 다음 위치에 저장해줘:
+  db/migrations/001_create_$1_table.sql
+
+  SQL 작성 시 주의사항:
+  - Oracle/Tibero 문법 준수
+  - VARCHAR2 사용
+  - 모든 트리거 끝에 / 추가
+  - COMMIT 포함
+  - 주석 추가 (한국어)
